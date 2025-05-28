@@ -1,84 +1,100 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 
-import { AuthForm } from "@/features/auth/components/auth-form";
-import { getSession } from "@/features/auth/services/auth-service";
+import Code from "@/features/auth/components/code";
+import Email from "@/features/auth/components/email";
+import Loading from "@/features/auth/components/loading";
+import { AuthStep } from "@/features/auth/types";
+import { ActionResponse } from "@/features/shared/types";
+import { cn } from "@/lib/utils";
 
-export default function AuthPage() {
-	const router = useRouter();
-	const [isLeaving, setIsLeaving] = useState(false);
+const mockSendMailOTP = async (email: string): Promise<ActionResponse> => {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve({ success: true, message: `OTP is sent to ${email}` });
+		}, 10000);
+	});
+};
 
-	const handleSignUp = async () => {
-		setIsLeaving(true);
+const mockOauth = async (): Promise<ActionResponse> => {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve({
+				success: false,
+				message: "Failed to login",
+				error: "Invalid credentials",
+			});
+		}, 4000);
+	});
+};
 
-		// Get the current session
-		const { data: currentSession } = await getSession();
+const AuthPage = () => {
+	const [step, setStep] = useState<AuthStep>("email");
+	const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
+	const [actionMessage, setActionMessage] = useState<string | null>(null);
+	const [isError, setIsError] = useState<boolean>(false);
 
-		if (currentSession?.user) {
-			// If we already have a session, redirect immediately
-			router.push("/account");
-			return;
+	const handleEmailSubmit = async (email: string) => {
+		setStep("loading");
+		setLoadingMessage(`We're sending a code to ${email}`);
+		setIsError(false);
+		const result = await mockSendMailOTP(email);
+		setActionMessage(result.message);
+		if (result.success) {
+			setStep("code");
+		} else {
+			console.error(result.error);
+			setIsError(true);
+			setStep("email");
 		}
-
-		// If no session yet, wait for it with a timeout
-		const maxAttempts = 50; // 5 seconds total
-		let attempts = 0;
-		let sessionCheckInterval: NodeJS.Timeout | null = null;
-
-		sessionCheckInterval = setInterval(async () => {
-			attempts++;
-			const { data: session } = await getSession();
-
-			if (session?.user) {
-				if (sessionCheckInterval) clearInterval(sessionCheckInterval);
-				router.push("/account");
-			} else if (attempts >= maxAttempts) {
-				if (sessionCheckInterval) clearInterval(sessionCheckInterval);
-				console.error("Session not found after multiple attempts");
-				router.push("/auth");
-			}
-		}, 100);
 	};
 
+	const handleOauthSubmit = async (provider: string) => {
+		setStep("loading");
+		setLoadingMessage(`Signing in with ${provider}`);
+		setIsError(false);
+		const result = await mockOauth();
+		setActionMessage(result.message);
+	};
+
+	// // Expose step state to window object for DevTools access
+	// useEffect(() => {
+	// 	(window as any).__AUTH_STEP = {
+	// 		setStep: (newStep: AuthStep) => setStep(newStep),
+	// 		setMessage: (message: string) => setActionMessage(message)
+	// 	};
+	// }, [step]);
+
 	return (
-		<div className="relative min-h-screen w-full overflow-hidden">
-			<div className="relative z-10 flex min-h-screen items-center justify-center">
+		<div className={cn("flex min-h-screen w-full items-center justify-center")}>
+			<div className="w-full max-w-sm">
 				<AnimatePresence mode="wait">
-					{!isLeaving && (
-						<motion.div
-							data-fade-content
-							className="flex h-[600px] w-[900px] items-center justify-center rounded-lg"
-							initial={{ x: -20, opacity: 0 }}
-							animate={{ x: 0, opacity: 1 }}
-							exit={{
-								x: -20,
-								opacity: 0,
-								transition: { duration: 0.2, ease: "easeInOut" },
-							}}
-							transition={{ duration: 0.5, ease: "easeInOut" }}
-						>
-							<div className="relative z-[5] flex h-full w-full overflow-hidden rounded-lg">
-								<AuthForm onSignUp={handleSignUp} key="auth-form" />
-								{/* Right side - Image */}
-								<div className="relative w-1/2">
-									<Image
-										src="/bath.jpg"
-										alt="Relaxation image"
-										fill
-										className="rounded-3xl"
-										style={{ objectFit: "cover" }}
-										priority
-									/>
-								</div>
-							</div>
-						</motion.div>
+					{step === "loading" && (
+						<Loading key="loading" message={loadingMessage} isError={isError} />
+					)}
+
+					{step === "email" && (
+						<Email
+							key="email-step"
+							handleEmailSubmit={handleEmailSubmit}
+							handleOauthSubmit={handleOauthSubmit}
+							actionMessage={actionMessage}
+						/>
+					)}
+
+					{step === "code" && (
+						<Code
+							key="code-step"
+							setStep={setStep}
+							setActionMessage={setActionMessage}
+						/>
 					)}
 				</AnimatePresence>
 			</div>
 		</div>
 	);
-}
+};
+
+export default AuthPage;

@@ -31,3 +31,7 @@ export interface InputOTPFormProps {
 	onVerificationSuccess: () => void;
 	onBackToRegistration: () => void;
 }
+
+export const OTP_LENGTH = 6;
+
+export type AuthStep = "email" | "code" | "loading";
