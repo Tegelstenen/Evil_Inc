@@ -1,6 +1,7 @@
 import "./globals.css";
 
 import type { Metadata } from "next";
+import { Toaster } from "sonner";
 
 import { BackgroundDust } from "@/components/background-dust";
 import { ReloadableLogoLink } from "@/components/reloadable-logo-link";
@@ -32,6 +33,7 @@ export default function RootLayout({
 						Built for the SSE x Microsoft Hackathon
 					</p>
 				</div>
+				<Toaster />
 			</body>
 		</html>
 	);

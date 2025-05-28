@@ -32,19 +32,26 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
 	React.forwardRef<React.ElementRef<typeof RPNInput.default>, PhoneInputProps>(
 		({ className, onChange, ...props }, ref) => {
 			return (
-				<div className="w-full">
-					<div className="relative flex">
-						<RPNInput.default
-							ref={ref}
-							className={cn("flex w-full", className)}
-							flagComponent={FlagComponent}
-							countrySelectComponent={CountrySelect}
-							inputComponent={InputComponent}
-							smartCaret={false}
-							onChange={(value) => onChange?.(value || ("" as RPNInput.Value))}
-							{...props}
-						/>
-					</div>
+				<div
+					className={cn(
+						"flex w-full items-center rounded-lg border border-white/10 bg-white/5 px-4 py-2.5",
+						"transition-colors focus-within:ring-2 focus-within:ring-white/20",
+						className,
+					)}
+				>
+					<RPNInput.default
+						ref={ref}
+						className={cn(
+							"flex w-full border-0 bg-transparent p-0 text-white shadow-none placeholder:text-white/30 focus:ring-0 focus:outline-none",
+							className,
+						)}
+						flagComponent={FlagComponent}
+						countrySelectComponent={CountrySelect}
+						inputComponent={InputComponent}
+						smartCaret={false}
+						onChange={(value) => onChange?.(value || ("" as RPNInput.Value))}
+						{...props}
+					/>
 				</div>
 			);
 		},
@@ -57,7 +64,7 @@ const InputComponent = React.forwardRef<
 >(({ className, ...props }, ref) => (
 	<input
 		className={cn(
-			"w-full rounded-none border-0 border-b border-gray-300 bg-transparent p-2 pl-18 text-white shadow-none placeholder:text-gray-400 focus:border-blue-500 focus:outline-none",
+			"w-full border-0 bg-transparent p-0 text-white shadow-none placeholder:text-white/30 focus:ring-0 focus:outline-none",
 			className,
 		)}
 		{...props}
@@ -88,10 +95,11 @@ const CountrySelect = ({
 					type="button"
 					variant="secondary"
 					className={cn(
-						"absolute top-1/2 left-0 z-10 flex -translate-y-1/2 items-center gap-1 bg-transparent p-1 text-white transition-colors hover:bg-gray-800",
+						"flex h-auto min-w-0 items-center gap-1 border-0 bg-transparent p-0 pr-2 text-white shadow-none transition-colors hover:bg-gray-800",
 						disabled ? "opacity-50" : "",
 					)}
 					disabled={disabled}
+					tabIndex={-1}
 				>
 					<FlagComponent
 						country={selectedCountry}
@@ -171,7 +179,7 @@ const CountrySelectOption = ({
 const FlagComponent = ({ country, countryName }: RPNInput.FlagProps) => {
 	const Flag = flags[country];
 	return (
-		<div className="mr-2 flex h-5 w-6 items-center justify-center overflow-hidden rounded-sm border border-gray-500">
+		<div className="mr-2 flex h-5 w-6 items-center justify-center overflow-hidden rounded-sm border border-gray-500 bg-white/10">
 			{Flag && <Flag title={countryName} />}
 		</div>
 	);
