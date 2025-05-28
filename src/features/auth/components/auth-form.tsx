@@ -4,44 +4,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { isValidPhoneNumber } from "react-phone-number-input";
-import { z } from "zod";
 
-import { InputOTPForm } from "@/components/otp-input";
-import { PhoneInput } from "@/components/phone-input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
-import { authClient } from "@/lib/auth-client";
+import { PhoneInput } from "@/features/auth/components/phone-input";
 import { primaryButtonStyles } from "@/lib/button-styles";
 
-// Form validation schema
-const FormSchema = z.object({
-	firstName: z
-		.string()
-		.min(2, { message: "First name must be at least 2 characters" })
-		.refine((val) => !/\d/.test(val), {
-			message: "First name should not contain numbers",
-		}),
-	lastName: z
-		.string()
-		.min(2, { message: "Last name must be at least 2 characters" })
-		.refine((val) => !/\d/.test(val), {
-			message: "Last name should not contain numbers",
-		}),
-	phone: z
-		.string()
-		.refine(isValidPhoneNumber, { message: "Invalid phone number" }),
-	terms: z.boolean().refine((val) => val === true, {
-		message: "You must accept the terms and conditions",
-	}),
-});
+import { sendOTP } from "../services/auth-service";
+import { AuthFormData, AuthFormSchema } from "../types";
+import { InputOTPForm } from "./otp-form";
 
 export function AuthForm({
 	onSignUp,
-}: {
+}: Readonly<{
 	onSignUp?: (first_name: string, last_name: string, phone: string) => void;
-}) {
+}>) {
 	const [view, setView] = useState<"form" | "otp">("form");
 	const [phoneNumber, setPhoneNumber] = useState<string>("");
 	const [firstName, setFirstName] = useState<string>("");
@@ -49,8 +27,8 @@ export function AuthForm({
 	const [isTransitioning, setIsTransitioning] = useState(false);
 
 	// Setup form with validation
-	const form = useForm<z.infer<typeof FormSchema>>({
-		resolver: zodResolver(FormSchema),
+	const form = useForm<AuthFormData>({
+		resolver: zodResolver(AuthFormSchema),
 		defaultValues: {
 			firstName: "",
 			lastName: "",
@@ -59,39 +37,29 @@ export function AuthForm({
 		},
 	});
 
-	const handleSubmit = form.handleSubmit(
-		async (values: z.infer<typeof FormSchema>) => {
-			setIsTransitioning(true);
-			setFirstName(values.firstName);
-			setLastName(values.lastName);
-			setPhoneNumber(values.phone);
+	const handleSubmit = form.handleSubmit(async (values: AuthFormData) => {
+		setIsTransitioning(true);
+		setFirstName(values.firstName);
+		setLastName(values.lastName);
+		setPhoneNumber(values.phone);
 
-			try {
-				console.log(
-					"Sending OTP with first/last name:",
-					values.firstName,
-					values.lastName,
-				);
-				await authClient.phoneNumber.sendOtp({
-					phoneNumber: values.phone,
-					fetchOptions: {
-						headers: {
-							"x-first-name": values.firstName,
-							"x-last-name": values.lastName,
-						},
-					},
-				});
+		try {
+			console.log(
+				"Sending OTP with first/last name:",
+				values.firstName,
+				values.lastName,
+			);
+			await sendOTP(values.phone, values.firstName, values.lastName);
 
-				setTimeout(() => {
-					setView("otp");
-					setIsTransitioning(false);
-				}, 300);
-			} catch (error) {
-				console.error("Error sending OTP:", error);
+			setTimeout(() => {
+				setView("otp");
 				setIsTransitioning(false);
-			}
-		},
-	);
+			}, 300);
+		} catch (error) {
+			console.error("Error sending OTP:", error);
+			setIsTransitioning(false);
+		}
+	});
 
 	// Handle successful OTP verification
 	const handleVerificationSuccess = async () => {

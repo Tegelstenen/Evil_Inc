@@ -1,7 +1,7 @@
 "use client";
 
 import { useConversation } from "@11labs/react";
-import { AnimatePresence,motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
 
 import {

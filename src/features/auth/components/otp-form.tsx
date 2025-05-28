@@ -10,20 +10,14 @@ import {
 	InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Spinner } from "@/components/ui/spinner";
-import { authClient } from "@/lib/auth-client";
 import {
 	addUser,
 	getOnboardingStatus,
 	setOnboardingStatus,
 } from "@/lib/server/actions/conversation";
 
-type InputOTPFormProps = {
-	phoneNumber: string;
-	firstName: string;
-	lastName: string;
-	onVerificationSuccess: () => void;
-	onBackToRegistration?: () => void;
-};
+import { getSession, sendOTP, verifyOTP } from "../services/auth-service";
+import { InputOTPFormProps } from "../types";
 
 export function InputOTPForm({
 	phoneNumber,
@@ -31,7 +25,7 @@ export function InputOTPForm({
 	lastName,
 	onVerificationSuccess,
 	onBackToRegistration,
-}: InputOTPFormProps) {
+}: Readonly<InputOTPFormProps>) {
 	const [otp, setOtp] = useState("");
 	const [isVerifying, setIsVerifying] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -39,7 +33,7 @@ export function InputOTPForm({
 
 	const handleOtpChange = (value: string) => {
 		// Only allow numbers
-		const numbersOnly = value.replace(/[^0-9]/g, "");
+		const numbersOnly = value.replace(/\D/g, "");
 		setOtp(numbersOnly);
 	};
 
@@ -53,16 +47,12 @@ export function InputOTPForm({
 		try {
 			// First verify the OTP with Better Auth
 			console.log("Verifying OTP with names:", firstName, lastName);
-			const verifyResult = await authClient.phoneNumber.verify({
-				phoneNumber: phoneNumber,
-				code: otp,
-				fetchOptions: {
-					headers: {
-						"x-first-name": firstName,
-						"x-last-name": lastName,
-					},
-				},
-			});
+			const verifyResult = await verifyOTP(
+				phoneNumber,
+				otp,
+				firstName,
+				lastName,
+			);
 
 			// Check if verification was successful
 			if (!verifyResult?.data?.status) {
@@ -72,7 +62,7 @@ export function InputOTPForm({
 			}
 
 			// Get the session with the user ID
-			const { data: session } = await authClient.getSession();
+			const { data: session } = await getSession();
 			if (!session?.user?.id) {
 				setError("Verification failed. Please try again.");
 				setOtp(""); // Clear the OTP input
@@ -154,7 +144,6 @@ export function InputOTPForm({
 	}, [
 		otp,
 		isVerifying,
-		authClient,
 		phoneNumber,
 		onVerificationSuccess,
 		firstName,
@@ -173,15 +162,7 @@ export function InputOTPForm({
 	const handleResend = async () => {
 		try {
 			console.log("Resending OTP with names:", firstName, lastName);
-			await authClient.phoneNumber.sendOtp({
-				phoneNumber: phoneNumber,
-				fetchOptions: {
-					headers: {
-						"x-first-name": firstName,
-						"x-last-name": lastName,
-					},
-				},
-			});
+			await sendOTP(phoneNumber, firstName, lastName);
 			setError(null);
 		} catch (error) {
 			console.error("Error resending OTP:", error);

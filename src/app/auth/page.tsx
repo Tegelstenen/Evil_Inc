@@ -5,8 +5,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { AuthForm } from "@/components/auth-form";
-import { authClient } from "@/lib/auth-client";
+import { AuthForm } from "@/features/auth/components/auth-form";
+import { getSession } from "@/features/auth/services/auth-service";
 
 export default function AuthPage() {
 	const router = useRouter();
@@ -16,7 +16,7 @@ export default function AuthPage() {
 		setIsLeaving(true);
 
 		// Get the current session
-		const { data: currentSession } = await authClient.getSession();
+		const { data: currentSession } = await getSession();
 
 		if (currentSession?.user) {
 			// If we already have a session, redirect immediately
@@ -31,7 +31,7 @@ export default function AuthPage() {
 
 		sessionCheckInterval = setInterval(async () => {
 			attempts++;
-			const { data: session } = await authClient.getSession();
+			const { data: session } = await getSession();
 
 			if (session?.user) {
 				if (sessionCheckInterval) clearInterval(sessionCheckInterval);
