@@ -2,28 +2,28 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { siGithub, siGoogle, siMeta } from "simple-icons";
 
-import OAuthButton from "./oauth-button";
+import { OAuthProviders } from "../types";
 import Terms from "./terms";
 
 const iconMap = {
-	Google: siGoogle,
-	Meta: siMeta,
-	Github: siGithub,
+	google: siGoogle,
+	facebook: siMeta,
+	github: siGithub,
 } as const;
 
 interface EmailProps {
 	handleEmailSubmit: (email: string) => void;
-	handleOauthSubmit: (provider: string) => void;
+	handleOauthSubmit: (provider: OAuthProviders) => void;
 	actionMessage?: string | null;
 }
 
-const Email = (props: EmailProps) => {
+const SignInSelection = (props: EmailProps) => {
 	const [email, setEmail] = useState("");
 
 	return (
 		<motion.div
 			key="email-step"
-			initial={{ opacity: 0, x: -100 }}
+			initial={{ opacity: 0, x: 100 }}
 			animate={{ opacity: 1, x: 0 }}
 			exit={{ opacity: 0, x: -100 }}
 			transition={{ duration: 0.4, ease: "easeOut" }}
@@ -41,12 +41,30 @@ const Email = (props: EmailProps) => {
 
 			<div className="space-y-4">
 				{Object.entries(iconMap).map(([provider]) => (
-					<OAuthButton
-						key={provider}
-						providers={provider as keyof typeof iconMap}
-						icon={iconMap[provider as keyof typeof iconMap]}
-						handleOauthSubmit={props.handleOauthSubmit}
-					/>
+					<div className="flex w-full justify-center" key={provider}>
+						<button
+							onClick={() =>
+								props.handleOauthSubmit(provider as OAuthProviders)
+							}
+							className="glow-on-hover flex w-[320px] items-center justify-center gap-2 px-4 py-3 transition-colors"
+						>
+							<div className="flex items-center gap-2">
+								<svg
+									aria-hidden="true"
+									viewBox="0 0 24 24"
+									className="h-5 w-5 flex-shrink-0"
+									fill="currentColor"
+									dangerouslySetInnerHTML={{
+										__html: iconMap[provider as keyof typeof iconMap].svg,
+									}}
+								/>
+								<span>
+									Sign in with{" "}
+									{provider.charAt(0).toUpperCase() + provider.slice(1)}
+								</span>
+							</div>
+						</button>
+					</div>
 				))}
 
 				<div className="flex items-center gap-4">
@@ -91,4 +109,4 @@ const Email = (props: EmailProps) => {
 	);
 };
 
-export default Email;
+export default SignInSelection;

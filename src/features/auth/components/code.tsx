@@ -52,13 +52,14 @@ const Code = (props: CodeProps) => {
 		setIsChecking(true);
 		const result = await mockCheckOTP(code);
 		if (result.success) {
-			props.setStep("success");
-			const firstTime = true;
-			if (firstTime) {
-				props.setStep("personal");
-			} else {
-				props.setStep("success");
-			}
+			props.setStep("loading");
+			// props.setStep("success");
+			// const firstTime = true;
+			// if (firstTime) {
+			// 	props.setStep("personal");
+			// } else {
+			// 	props.setStep("success");
+			// }
 		} else {
 			setWrongCode(true);
 			if (result.error == "rate limit") {

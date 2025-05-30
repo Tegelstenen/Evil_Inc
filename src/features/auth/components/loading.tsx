@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
-import BoxSpinner from "@/features/shared/components/suspense-animations";
+import { BoxSpinner } from "@/features/shared";
 
 interface SuspenseProps {
 	message: string | null;
@@ -10,11 +10,19 @@ interface SuspenseProps {
 
 const Loading = (props: SuspenseProps) => {
 	const [showMessage, setShowMessage] = useState(false);
+	const [showSpinner, setShowSpinner] = useState(false);
 
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setShowMessage(true);
 		}, 1000);
+		return () => clearTimeout(timer);
+	}, []);
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setShowSpinner(true);
+		}, 400);
 		return () => clearTimeout(timer);
 	}, []);
 
@@ -37,7 +45,13 @@ const Loading = (props: SuspenseProps) => {
 					ease: "easeInOut",
 				}}
 			>
-				<BoxSpinner />
+				<motion.div
+					initial={{ opacity: 0 }}
+					animate={{ opacity: showSpinner ? 1 : 0 }}
+					transition={{ duration: 0.3 }}
+				>
+					{showSpinner && <BoxSpinner />}
+				</motion.div>
 			</motion.div>
 
 			<motion.div

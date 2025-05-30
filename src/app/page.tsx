@@ -2,23 +2,29 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { HerLogo } from "@/components/logos";
+import { useSession } from "@/lib/auth-client";
 import { primaryButtonStyles } from "@/lib/button-styles";
 
-export default function Home() {
+export default function LandingPage() {
 	const [isLeaving, setIsLeaving] = useState(false);
 	const router = useRouter();
+	const { data: session } = useSession();
 
-	useEffect(() => {
-		if (isLeaving) {
-			const timeout = setTimeout(() => {
+	const handleGetStarted = () => {
+		setIsLeaving(true);
+		if (session) {
+			setTimeout(() => {
+				router.push("/dashboard");
+			}, 200);
+		} else {
+			setTimeout(() => {
 				router.push("/auth");
 			}, 200);
-			return () => clearTimeout(timeout);
 		}
-	}, [isLeaving, router]);
+	};
 
 	return (
 		<div className="relative flex min-h-screen items-center justify-center p-0">
@@ -32,7 +38,6 @@ export default function Home() {
 							animate={{ opacity: 1 }}
 							exit={{
 								opacity: 0,
-								y: -20,
 								transition: { duration: 0.2 },
 							}}
 							transition={{ duration: 0.5 }}
@@ -56,7 +61,7 @@ export default function Home() {
 								<motion.button
 									className={primaryButtonStyles}
 									style={{ width: "fit-content" }}
-									onClick={() => setIsLeaving(true)}
+									onClick={handleGetStarted}
 									whileHover={{ scale: 0.95 }}
 									whileTap={{ scale: 0.88 }}
 								>
