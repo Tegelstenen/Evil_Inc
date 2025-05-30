@@ -57,6 +57,13 @@
       "when": 1746450417038,
       "tag": "0007_rapid_nicolaos",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1748609573636,
+      "tag": "0008_brief_senator_kelly",
+      "breakpoints": true
     }
   ]
 }

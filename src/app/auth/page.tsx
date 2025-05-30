@@ -3,11 +3,15 @@
 import { AnimatePresence } from "framer-motion";
 import { useState } from "react";
 
-import Code from "@/features/auth/components/code";
-import Email from "@/features/auth/components/email";
-import Loading from "@/features/auth/components/loading";
-import { AuthStep } from "@/features/auth/types";
-import { ActionResponse } from "@/features/shared/types";
+import {
+	AuthStep,
+	Code,
+	Loading,
+	OAuthProviders,
+	SignInSelection,
+} from "@/features/auth";
+import { ActionResponse } from "@/features/shared";
+import { signIn } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 
 const mockSendMailOTP = async (email: string): Promise<ActionResponse> => {
@@ -18,20 +22,8 @@ const mockSendMailOTP = async (email: string): Promise<ActionResponse> => {
 	});
 };
 
-const mockOauth = async (): Promise<ActionResponse> => {
-	return new Promise((resolve) => {
-		setTimeout(() => {
-			resolve({
-				success: false,
-				message: "Failed to login",
-				error: "Invalid credentials",
-			});
-		}, 4000);
-	});
-};
-
 const AuthPage = () => {
-	const [step, setStep] = useState<AuthStep>("email");
+	const [step, setStep] = useState<AuthStep>("selection");
 	const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
 	const [actionMessage, setActionMessage] = useState<string | null>(null);
 	const [isError, setIsError] = useState<boolean>(false);
@@ -47,36 +39,43 @@ const AuthPage = () => {
 		} else {
 			console.error(result.error);
 			setIsError(true);
-			setStep("email");
+			setStep("selection");
 		}
 	};
 
-	const handleOauthSubmit = async (provider: string) => {
+	const handleOauthSubmit = async (provider: OAuthProviders) => {
 		setStep("loading");
 		setLoadingMessage(`Signing in with ${provider}`);
 		setIsError(false);
-		const result = await mockOauth();
-		setActionMessage(result.message);
+		await signIn.social(
+			{
+				provider: provider,
+				callbackURL: "/dashboard",
+			},
+			{
+				onError: (ctx) => {
+					setIsError(true);
+					setActionMessage(ctx.error.message);
+					setStep("selection");
+				},
+			},
+		);
 	};
 
-	// // Expose step state to window object for DevTools access
-	// useEffect(() => {
-	// 	(window as any).__AUTH_STEP = {
-	// 		setStep: (newStep: AuthStep) => setStep(newStep),
-	// 		setMessage: (message: string) => setActionMessage(message)
-	// 	};
-	// }, [step]);
-
 	return (
-		<div className={cn("flex min-h-screen w-full items-center justify-center")}>
+		<div
+			className={cn(
+				"flex min-h-screen w-full items-center justify-center overflow-hidden",
+			)}
+		>
 			<div className="w-full max-w-sm">
 				<AnimatePresence mode="wait">
 					{step === "loading" && (
 						<Loading key="loading" message={loadingMessage} isError={isError} />
 					)}
 
-					{step === "email" && (
-						<Email
+					{step === "selection" && (
+						<SignInSelection
 							key="email-step"
 							handleEmailSubmit={handleEmailSubmit}
 							handleOauthSubmit={handleOauthSubmit}

@@ -1,3 +1,3 @@
-export * from "./otp-form";
-export * from "./phone-input";
-export * from "./signup";
+export { default as Code } from "./code";
+export { default as Loading } from "./loading";
+export { default as SignInSelection } from "./signin-selection";
