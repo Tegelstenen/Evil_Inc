@@ -1,3 +1,4 @@
-export { default as Code } from "./code";
-export { default as Loading } from "./loading";
-export { default as SignInSelection } from "./signin-selection";
+export { default as OAuthButtons } from "./oauth-buttons";
+export { default as SignInForm } from "./signin-form";
+export { default as SignUpForm } from "./signup-form";
+export { default as TermsAndConditions } from "./terms-and-conditions";

@@ -435,7 +435,8 @@
 }
 
 .glow-on-hover:active {
-  color: #000
+  color: #000;
+  background: transparent;
 }
 
 .glow-on-hover:active:after {
@@ -456,6 +457,15 @@
   left: 0;
   top: 0;
   border-radius: 10px;
+  transition: background 0.3s ease-in-out;
+}
+
+.glow-active:before {
+  opacity: 1 !important;
+}
+
+.glow-active:after {
+  background: transparent !important;
 }
 
 @keyframes glowing_54134 {

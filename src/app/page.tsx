@@ -5,25 +5,17 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { HerLogo } from "@/components/logos";
-import { useSession } from "@/lib/auth-client";
 import { primaryButtonStyles } from "@/lib/button-styles";
 
 export default function LandingPage() {
 	const [isLeaving, setIsLeaving] = useState(false);
 	const router = useRouter();
-	const { data: session } = useSession();
 
 	const handleGetStarted = () => {
 		setIsLeaving(true);
-		if (session) {
-			setTimeout(() => {
-				router.push("/dashboard");
-			}, 200);
-		} else {
-			setTimeout(() => {
-				router.push("/auth");
-			}, 200);
-		}
+		setTimeout(() => {
+			router.push("/signin");
+		}, 200);
 	};
 
 	return (
