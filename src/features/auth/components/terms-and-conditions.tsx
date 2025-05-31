@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const Terms = () => {
+const TermsAndConditions = () => {
 	return (
 		<p className="pt-10 text-xs text-white/40">
 			By signing up, you agree to the{" "}
@@ -43,4 +43,4 @@ const Terms = () => {
 	);
 };
 
-export default Terms;
+export default TermsAndConditions;

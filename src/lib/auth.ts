@@ -9,6 +9,9 @@ export const auth = betterAuth({
 		provider: "pg",
 		schema: schema,
 	}),
+	emailAndPassword: {
+		enabled: true,
+	},
 	account: {
 		accountLinking: {
 			enabled: true,
@@ -28,4 +31,5 @@ export const auth = betterAuth({
 			clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
 		},
 	},
+	plugins: [],
 });
