@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { phoneNumber } from "better-auth/plugins";
 
 import { VerificationEmail } from "@/features/auth/components";
 import { db } from "@/lib/server/db/db";
@@ -27,6 +28,15 @@ export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
 		requireEmailVerification: true,
+	},
+	user: {
+		additionalFields: {
+			lastName: {
+				type: "string",
+				required: true,
+				defaultValue: "temp",
+			},
+		},
 	},
 	emailVerification: {
 		sendVerificationEmail: async ({ user, url }) => {
@@ -59,4 +69,16 @@ export const auth = betterAuth({
 			clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
 		},
 	},
+	plugins: [
+		phoneNumber({
+			sendOTP: ({ phoneNumber, code }) => {
+				console.log(
+					"Here is the code",
+					code,
+					"and the phone number",
+					phoneNumber,
+				);
+			},
+		}),
+	],
 });

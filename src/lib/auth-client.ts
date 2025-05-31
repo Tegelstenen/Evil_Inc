@@ -1,5 +1,11 @@
+import {
+	inferAdditionalFields,
+	phoneNumberClient,
+} from "better-auth/client/plugins";
 import { createAuthClient } from "better-auth/react";
 import { toast } from "sonner";
+
+import type { auth } from "./auth";
 
 export const {
 	useSession,
@@ -8,8 +14,11 @@ export const {
 	signOut,
 	signUp,
 	sendVerificationEmail,
+	updateUser,
+	phoneNumber: { sendOtp, verify },
 } = createAuthClient({
 	baseURL: process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000",
+	plugins: [phoneNumberClient(), inferAdditionalFields<typeof auth>()],
 	fetchOptions: {
 		onError: async (context) => {
 			const { response } = context;
