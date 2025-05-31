@@ -5,11 +5,14 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import {
+	sendOtp,
 	sendVerificationEmail,
 	signIn,
 	signOut,
 	signUp,
+	updateUser,
 	useSession,
+	verify,
 } from "@/lib/auth-client";
 
 import { OAuthProviders, SignInData, SignUpData } from "../types";
@@ -124,13 +127,56 @@ export const useAuth = () => {
 		});
 	};
 
+	const sendOTP = async (phoneNumber: string) => {
+		refetch();
+		if (!session) {
+			router.push("/sign-in");
+		} else {
+			await sendOtp({
+				phoneNumber,
+			});
+		}
+	};
+
+	const handleVerifyOTP = async (phoneNumber: string, code: string) => {
+		refetch();
+		if (!session) {
+			router.push("/sign-in");
+		} else {
+			const isVerified = await verify({
+				phoneNumber,
+				code,
+				updatePhoneNumber: true,
+			});
+			return isVerified;
+		}
+	};
+
+	const addNames = async (firstName: string, lastName: string) => {
+		refetch();
+		if (!session?.user?.id) {
+			router.push("/sign-in");
+			return;
+		}
+
+		const result = await updateUser({
+			name: firstName,
+			lastName: lastName,
+		});
+
+		return result;
+	};
+
 	return {
 		handleOauthSignin,
 		handleEmailSignIn,
 		handleEmailSignUp,
 		handleSignOut,
 		handleResendVerification,
+		sendOTP,
+		handleVerifyOTP,
 		isLoading,
+		addNames,
 		isSelectedProvider,
 		error,
 	};
