@@ -64,6 +64,13 @@
       "when": 1748609573636,
       "tag": "0008_brief_senator_kelly",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1748695616991,
+      "tag": "0009_loving_cable",
+      "breakpoints": true
     }
   ]
 }
