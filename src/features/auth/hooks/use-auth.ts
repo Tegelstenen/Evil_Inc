@@ -1,9 +1,19 @@
+"use client";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
-import { signIn, signUp } from "@/lib/auth-client";
+import {
+	sendVerificationEmail,
+	signIn,
+	signOut,
+	signUp,
+	useSession,
+} from "@/lib/auth-client";
 
 import { OAuthProviders, SignInData, SignUpData } from "../types";
+import { useStoredEmail } from "./use-stored-email";
 
 export const useAuth = () => {
 	const [loadingAction, setLoadingAction] = useState<
@@ -11,6 +21,8 @@ export const useAuth = () => {
 	>(null);
 	const [error, setError] = useState<string | null>(null);
 	const router = useRouter();
+	const { saveEmail } = useStoredEmail();
+	const { data: session, refetch } = useSession();
 
 	const isLoading = loadingAction !== null;
 	const isSelectedProvider = (action: OAuthProviders | "email") =>
@@ -43,9 +55,14 @@ export const useAuth = () => {
 					password: data.password,
 				},
 				{
-					onError: (ctx) => {
-						setError(ctx.error.message);
-						setLoadingAction(null);
+					onError: async (ctx) => {
+						if (ctx.error.status === 403) {
+							await saveEmail(data.email);
+							router.push(`/verify-email`);
+						} else {
+							setError(ctx.error.message);
+							setLoadingAction(null);
+						}
 					},
 					onSuccess: () => {
 						router.push("/dashboard");
@@ -73,8 +90,9 @@ export const useAuth = () => {
 						setError(ctx.error.message);
 						setLoadingAction(null);
 					},
-					onSuccess: () => {
-						router.push("/dashboard");
+					onSuccess: async () => {
+						await saveEmail(data.email);
+						router.push(`/verify-email`);
 					},
 				},
 			);
@@ -84,10 +102,34 @@ export const useAuth = () => {
 		}
 	};
 
+	const handleSignOut = async () => {
+		await signOut({
+			fetchOptions: {
+				onSuccess: () => {
+					router.push("/signin");
+				},
+			},
+		});
+	};
+
+	const handleResendVerification = async (email: string) => {
+		refetch();
+		const isVerified = session?.user?.emailVerified;
+		if (isVerified) {
+			toast.error("Email already verified");
+			router.push("/dashboard");
+		}
+		await sendVerificationEmail({
+			email,
+		});
+	};
+
 	return {
 		handleOauthSignin,
 		handleEmailSignIn,
 		handleEmailSignUp,
+		handleSignOut,
+		handleResendVerification,
 		isLoading,
 		isSelectedProvider,
 		error,
