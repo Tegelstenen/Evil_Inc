@@ -387,6 +387,7 @@ const DustCloud: React.FC<DustCloudProps> = ({
 		let targetIntensity = 0; // Target intensity to smooth towards
 		let smoothedActiveState = isActiveRef.current ? 1.0 : 0.0; // Smoothed active state
 		let targetActiveState = isActiveRef.current ? 1.0 : 0.0; // Target active state
+		let animationFrameId: number;
 
 		function render() {
 			const currentTime = performance.now();
@@ -451,7 +452,7 @@ const DustCloud: React.FC<DustCloudProps> = ({
 					(listenConfig.DUST_CLUSTERING - idleConfig.DUST_CLUSTERING);
 
 			// Always update accumulated time smoothly with dynamic time factor and talking intensity
-			const maxTimeFactor = currentTimeFactor * 5.0; // Increased multiplier since we removed other effects
+			const maxTimeFactor = currentTimeFactor * 10.0; // Increased multiplier since we removed other effects
 			const dynamicTimeFactor =
 				currentTimeFactor +
 				smoothedIntensity * (maxTimeFactor - currentTimeFactor);
@@ -494,7 +495,7 @@ const DustCloud: React.FC<DustCloudProps> = ({
 			gl.uniform1f(uDustClusteringLoc, currentDustClustering);
 
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
-			requestAnimationFrame(render);
+			animationFrameId = requestAnimationFrame(render);
 		}
 
 		// Initial canvas sizing and viewport setup
@@ -513,11 +514,21 @@ const DustCloud: React.FC<DustCloudProps> = ({
 		window.addEventListener("resize", handleResize);
 
 		return () => {
+			// Cancel the animation frame
+			if (animationFrameId) {
+				cancelAnimationFrame(animationFrameId);
+			}
+
+			// Remove resize listener
 			window.removeEventListener("resize", handleResize);
+
 			// Clean up WebGL resources
 			gl.deleteProgram(program);
 			gl.deleteBuffer(vbo);
 			gl.deleteVertexArray(vao);
+
+			// Clear the canvas
+			gl.clear(gl.COLOR_BUFFER_BIT);
 		};
 	}, []); // Empty dependency array - no more re-rendering on prop changes!
 

@@ -7,8 +7,9 @@ import { ConversationEvent } from "../types";
 
 type UseConversationReturn = {
 	isSessionActive: boolean;
-	isAgentSpeaking: boolean | null;
+	isAgentSpeaking: boolean;
 	events: ConversationEvent[];
+	audioIntensity: number;
 	startSession: () => Promise<void>;
 	stopSession: () => void;
 	sendClientEvent: (message: ConversationEvent) => void;
@@ -18,10 +19,14 @@ type UseConversationReturn = {
 const useConversation = (): UseConversationReturn => {
 	const [isSessionActive, setIsSessionActive] = useState(false);
 	const [events, setEvents] = useState<ConversationEvent[]>([]);
-	const [isAgentSpeaking, setIsAgentSpeaking] = useState<boolean | null>(null);
+	const [isAgentSpeaking, setIsAgentSpeaking] = useState<boolean>(false);
+	const [audioIntensity, setAudioIntensity] = useState<number>(0);
 	const [dataChannel, setDataChannel] = useState<RTCDataChannel | null>(null);
 	const peerConnection = useRef<RTCPeerConnection | null>(null);
 	const audioElement = useRef<HTMLAudioElement | null>(null);
+	const audioContext = useRef<AudioContext | null>(null);
+	const analyser = useRef<AnalyserNode | null>(null);
+	const streamStartTime = useRef<number | null>(null);
 
 	const startSession = async () => {
 		// Get a session token using the server action
@@ -35,9 +40,35 @@ const useConversation = (): UseConversationReturn => {
 		const audio = document.createElement("audio");
 		audio.autoplay = true;
 		audioElement.current = audio;
+
+		// Set up audio analysis
+		audioContext.current = new AudioContext();
+		analyser.current = audioContext.current.createAnalyser();
+		analyser.current.fftSize = 256;
+
 		pc.ontrack = (e) => {
 			if (audioElement.current) {
 				audioElement.current.srcObject = e.streams[0];
+				// Connect the audio stream to the analyzer
+				const source = audioContext.current!.createMediaStreamSource(
+					e.streams[0],
+				);
+				source.connect(analyser.current!);
+
+				// Start analyzing audio
+				const dataArray = new Uint8Array(analyser.current!.frequencyBinCount);
+				streamStartTime.current = Date.now();
+				const analyzeAudio = () => {
+					if (analyser.current) {
+						analyser.current.getByteFrequencyData(dataArray);
+						// Calculate average intensity
+						const average =
+							dataArray.reduce((a, b) => a + b) / dataArray.length;
+						setAudioIntensity(average);
+						requestAnimationFrame(analyzeAudio);
+					}
+				};
+				analyzeAudio();
 			}
 		};
 
@@ -89,10 +120,17 @@ const useConversation = (): UseConversationReturn => {
 			peerConnection.current.close();
 		}
 
-		setIsAgentSpeaking(null);
+		if (audioContext.current) {
+			audioContext.current.close();
+		}
+
+		setIsAgentSpeaking(false);
 		setIsSessionActive(false);
 		setDataChannel(null);
 		peerConnection.current = null;
+		audioContext.current = null;
+		analyser.current = null;
+		streamStartTime.current = null;
 	};
 
 	const sendClientEvent = (message: ConversationEvent) => {
@@ -146,6 +184,7 @@ const useConversation = (): UseConversationReturn => {
 					setIsAgentSpeaking(true);
 				} else if (event.type === "output_audio_buffer.stopped") {
 					setIsAgentSpeaking(false);
+					setAudioIntensity(0);
 				}
 			});
 
@@ -157,10 +196,20 @@ const useConversation = (): UseConversationReturn => {
 		}
 	}, [dataChannel]);
 
+	// Cleanup effect to stop session when component unmounts
+	useEffect(() => {
+		return () => {
+			if (isSessionActive) {
+				stopSession();
+			}
+		};
+	}, [isSessionActive]);
+
 	return {
 		isSessionActive,
 		isAgentSpeaking,
 		events,
+		audioIntensity,
 		startSession,
 		stopSession,
 		sendClientEvent,
