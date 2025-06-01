@@ -28,4 +28,4 @@ const Orb = (props: OrbProps) => {
 	);
 };
 
-export { Orb };
+export default Orb;
