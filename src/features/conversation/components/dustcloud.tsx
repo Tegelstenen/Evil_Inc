@@ -452,7 +452,7 @@ const DustCloud: React.FC<DustCloudProps> = ({
 					(listenConfig.DUST_CLUSTERING - idleConfig.DUST_CLUSTERING);
 
 			// Always update accumulated time smoothly with dynamic time factor and talking intensity
-			const maxTimeFactor = currentTimeFactor * 10.0; // Increased multiplier since we removed other effects
+			const maxTimeFactor = currentTimeFactor * 20.0; // Increased multiplier since we removed other effects
 			const dynamicTimeFactor =
 				currentTimeFactor +
 				smoothedIntensity * (maxTimeFactor - currentTimeFactor);

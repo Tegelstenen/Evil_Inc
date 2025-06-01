@@ -1,10 +1,10 @@
 // State configurations
 export const IDLE_STATE = {
-	ZOOM_FACTOR: 0.3,
+	ZOOM_FACTOR: 1,
 	TURBULENCE_STRENGTH: 0.15,
 	TURBULENCE_FACTOR: 0.25,
 	TURBULENCE_FREQUENCY: 1.5,
-	TIME_FACTOR: 0.1, // Much slower for dormant/idle state
+	TIME_FACTOR: 0.15, // Much slower for dormant/idle state
 	BASE_SWIRL_STRENGTH: 0.3,
 	SWIRL_TIME_MULT: 2.0,
 	DUST_CLUSTERING: 0.6,
@@ -34,11 +34,11 @@ export const IDLE_STATE = {
 } as const;
 
 export const LISTEN_STATE = {
-	ZOOM_FACTOR: 0.3,
+	ZOOM_FACTOR: 1,
 	TURBULENCE_STRENGTH: 0.15,
 	TURBULENCE_FACTOR: 0.25,
 	TURBULENCE_FREQUENCY: 1.5,
-	TIME_FACTOR: 0.165, // Faster for active/listening state
+	TIME_FACTOR: 0.2, // Faster for active/listening state
 	BASE_SWIRL_STRENGTH: 0.3,
 	SWIRL_TIME_MULT: 2.0,
 	DUST_CLUSTERING: 0.6,
