@@ -5,8 +5,10 @@ const GoalExampleLayout = ({ children }: { children: React.ReactNode }) => {
 	return (
 		<SidebarProvider>
 			<AppSidebar />
-			<SidebarTrigger />
-			<div className="h-screen w-full">{children}</div>
+			<main className="min-w-0 flex-1">
+				<SidebarTrigger />
+				{children}
+			</main>
 		</SidebarProvider>
 	);
 };

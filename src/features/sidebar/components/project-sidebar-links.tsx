@@ -69,7 +69,7 @@ const ProjectSidebarLinks = async () => {
 									<Link
 										key={project.id}
 										className="text-muted-foreground text-sm"
-										href={`/project/${project.id}`}
+										href={`/project-overview/${project.id}`}
 									>
 										{project.name}
 									</Link>

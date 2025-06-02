@@ -25,7 +25,11 @@ const VerifyEmailPage = () => {
 			router.push("/dashboard");
 		}
 	};
-	useEffect(successfullVerification, [session?.user.emailVerified, router]);
+	useEffect(successfullVerification, [
+		session?.user.emailVerified,
+		clearEmail,
+		router,
+	]);
 
 	// Combined error and access handling
 	const invalidAcessToPage = () => {
@@ -59,6 +63,7 @@ const VerifyEmailPage = () => {
 		error,
 		isEmailPending,
 		email,
+		clearEmail,
 		router,
 		isSessionPending,
 		session,
