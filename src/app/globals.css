@@ -69,7 +69,7 @@
     0%,70%,100% { opacity: 1; }
     20%,50% { opacity: 0; }
   }
-  
+
   .animate-caret-blink {
     animation: caret-blink 1.25s ease-out infinite;
   }
@@ -351,7 +351,7 @@
   animation: spinner-y0fdc1 2s infinite ease;
   transform-style: preserve-3d;
  }
- 
+
  .spinner > div {
   background-color: rgba(0,0,0,0.2);
   height: 100%;
@@ -359,50 +359,50 @@
   width: 100%;
   border: 2px solid #ffffff;
  }
- 
+
  .spinner div:nth-of-type(1) {
   transform: translateZ(-22px) rotateY(180deg);
  }
- 
+
  .spinner div:nth-of-type(2) {
   transform: rotateY(-270deg) translateX(50%);
   transform-origin: top right;
  }
- 
+
  .spinner div:nth-of-type(3) {
   transform: rotateY(270deg) translateX(-50%);
   transform-origin: center left;
  }
- 
+
  .spinner div:nth-of-type(4) {
   transform: rotateX(90deg) translateY(-50%);
   transform-origin: top center;
  }
- 
+
  .spinner div:nth-of-type(5) {
   transform: rotateX(-90deg) translateY(50%);
   transform-origin: bottom center;
  }
- 
+
  .spinner div:nth-of-type(6) {
   transform: translateZ(22px);
  }
- 
+
  @keyframes spinner-y0fdc1 {
   0% {
    transform: rotate(45deg) rotateX(-25deg) rotateY(25deg);
   }
- 
+
   50% {
    transform: rotate(45deg) rotateX(-385deg) rotateY(25deg);
   }
- 
+
   100% {
    transform: rotate(45deg) rotateX(-385deg) rotateY(385deg);
   }
  }
 
- /* From Uiverse.io by GetYourCode8605 */ 
+/* From Uiverse.io by GetYourCode8605 - Updated with LISTEN_STATE colors */ 
 .glow-on-hover {
   width: 320px;
   height: 50px;
@@ -419,7 +419,7 @@
 
 .glow-on-hover:before {
   content: '';
-  background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+  background: linear-gradient(45deg, #381405, #fac26e, #6b330f, #fff7db, #d17a33, #ffde94, #9e541f, #fffcf5, #eda14d, #fff0ba, #381405);
   position: absolute;
   top: -2px;
   left: -2px;
@@ -493,7 +493,7 @@
   content: '';
   position: absolute;
   inset: -2px;
-  background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+  background: linear-gradient(45deg, #381405, #fac26e, #6b330f, #fff7db, #d17a33, #ffde94, #9e541f, #fffcf5, #eda14d, #fff0ba, #381405);
   background-size: 400%;
   filter: blur(5px);
   opacity: 0;
