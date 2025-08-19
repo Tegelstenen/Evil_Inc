@@ -1,10 +1,12 @@
 import "./globals.css";
 
 import type { Metadata } from "next";
-import { Toaster } from "sonner";
+
+import NavigationSidebar from "@/components/NavigationSidebar";
+import StyledComponentsRegistry from "@/lib/registry";
 
 export const metadata: Metadata = {
-	title: "Her",
+	title: "Evil Incorporated",
 };
 
 export default function RootLayout({
@@ -13,8 +15,10 @@ export default function RootLayout({
 	return (
 		<html lang="en" className={"h-full w-full"}>
 			<body className={"bg-black antialiased"}>
-				{children}
-				<Toaster />
+				<StyledComponentsRegistry>
+					<NavigationSidebar />
+					{children}
+				</StyledComponentsRegistry>
 			</body>
 		</html>
 	);

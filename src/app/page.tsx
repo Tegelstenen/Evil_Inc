@@ -1,14 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import Hero from "@/components/Hero";
 
 export default function LandingPage() {
-	const router = useRouter();
-
-	useEffect(() => {
-		router.push("/home");
-	}, [router]);
-
-	return null;
+	return (
+		<div className="flex h-full w-full items-center justify-center">
+			<Hero />
+		</div>
+	);
 }
